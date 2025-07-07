@@ -1,12 +1,9 @@
+import ky from 'ky'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { client, del, get, post, put } from '../src'
-import ky from 'ky'
 
 vi.mock('ky', () => ({
   default: vi.fn((url, opts) => {
-    // Log opts for debugging
-    // eslint-disable-next-line no-console
-    if (process.env.DEBUG_KY_MOCK) console.log('ky mock opts:', opts)
     return {
       json: () => Promise.resolve('ok'),
       foo: 123, // non-function property for coverage
@@ -143,6 +140,7 @@ describe('client', () => {
     const api = client({
       baseUrl,
       endpoints,
+      // eslint-disable-next-line require-await
       getToken: async () => 'async-token',
     }) as any
     await api.authed()
