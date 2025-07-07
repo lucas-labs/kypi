@@ -150,7 +150,7 @@ function interpolateUrl(
   params: Record<string, any> | undefined,
 ): string {
   if (!params) return url
-  return url.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => {
+  return url.replaceAll(/:(\w+)/g, (_, key) => {
     if (params[key] === undefined) throw new Error(`Missing param: ${key}`)
     return encodeURIComponent(params[key])
   })

@@ -1,9 +1,10 @@
 import ky from 'ky'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  adel,
+  aep,
   aget,
   ahead,
-  adel,
   apatch,
   apost,
   aput,
@@ -18,7 +19,6 @@ import {
   post,
   put,
   type EndpointGroup,
-  aep,
 } from '../src'
 
 vi.mock('ky', () => ({
@@ -154,6 +154,7 @@ describe('client', () => {
     const api = client({
       baseUrl,
       endpoints,
+      // eslint-disable-next-line require-await
       getToken: async () => 'async-token',
     }) as any
     await api.authed()

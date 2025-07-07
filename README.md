@@ -225,8 +225,15 @@ function App() {
 - **ky** by [Sindre Sorhus](https://github.com/sindresorhus/ky) — the HTTP client that does all the heavy lifting.
 - Everyone who builds and shares open source. You rock.
 
+> [!NOTE]
+> The `kypi` logo is obviously inspired by `ky`’s logo, but since I’m from Argentina, I chose jacaranda blossoms instead of sakura to give it a unique touch—and because I like jacarandas.
+
 ---
 
 ## License
 
 MIT © [Lucas Colombo](https://github.com/lucas-labs)
+
+---
+
+With 🧉 from Argentina 🇦🇷
