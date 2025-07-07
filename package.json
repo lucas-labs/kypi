@@ -1,7 +1,7 @@
 {
   "name": "kypi",
   "version": "0.0.0",
-  "packageManager": "bun@1.1.13",
+  "packageManager": "bun@^1.2.8",
   "description": "Utility functions for building API clients.",
   "type": "module",
   "license": "MIT",
@@ -23,8 +23,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./react": {
-      "types": "./dist/react.d.ts",
-      "default": "./dist/react.js"
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
     },
     "./package.json": "./package.json"
   },
