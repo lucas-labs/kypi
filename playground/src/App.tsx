@@ -5,7 +5,7 @@ import { get, post, del, type EndpointGroup } from '../../src'
 const useApi = createClientHook({
   products: get<void, Array<{ id: number; title: string }>>('/products'),
   addProduct: post<{ title: string }, { id: number; title: string }>('/products'),
-  deleteProduct: del<void, {}>('/products/:id'),
+  deleteProduct: del<void, {}, {id: number}>('/products/:id'),
 })
 
 export default function App() {
@@ -16,7 +16,7 @@ export default function App() {
 
   const fetchProducts = async () => {
     setLoading(true)
-    const data = await api.products();
+    const data = await api.products().json()
     setProducts(data)
     setLoading(false)
   }
@@ -24,7 +24,9 @@ export default function App() {
   const handleAdd = async () => {
     if (!newTitle) return
     setLoading(true)
-    await api.addProduct({ title: newTitle })
+    const product = { title: newTitle };
+    console.log('Adding', product)
+    await api.addProduct(product)
     setNewTitle('')
     await fetchProducts()
     setLoading(false)
@@ -32,7 +34,7 @@ export default function App() {
 
   const handleDelete = async (id: number) => {
     setLoading(true)
-    await api.deleteProduct(undefined, { id })
+    await api.deleteProduct({ params: {id} })
     await fetchProducts()
     setLoading(false)
   }
