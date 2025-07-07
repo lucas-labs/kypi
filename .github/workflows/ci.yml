@@ -33,8 +33,17 @@ jobs:
       - name: Test with coverage
         run: bun run test --coverage
 
+      - name: Generate JUnit report
+        run: bun vitest --reporter=junit --outputFile=test-report.junit.xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
           token: ${{ secrets.CODECOV_TOKEN }}

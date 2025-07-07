@@ -5,3 +5,5 @@ coverage
 *.log
 .DS_Store
 .eslintcache
+
+test-report.junit.xml
