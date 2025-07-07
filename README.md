@@ -11,11 +11,13 @@
 	<br>
 </div>
 
-[![codecov](https://codecov.io/gh/lucas-labs/kypi/branch/main/graph/badge.svg)](https://codecov.io/gh/lucas-labs/kypi)
-![Unit Test](https://github.com/lucas-labs/kypi/actions/workflows/unit-test.yml/badge.svg)
-[![npm version](https://img.shields.io/npm/v/kypi.svg)](https://www.npmjs.com/package/kypi)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![bundlephobia](https://img.shields.io/bundlephobia/minzip/kypi)](https://bundlephobia.com/result?p=kypi)
+<p align="center">
+<img alt="Codecov" src="https://img.shields.io/codecov/c/github/lucas-labs/kypi?style=flat-square&labelColor=252932&color=2b2b2d"> <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/lucas-labs/kypi/ci.yml?style=flat-square&label=CI&labelColor=252932&color=2b2b2d"> 
+<img alt="License: MIT" src="https://img.shields.io/github/license/lucas-labs/kypi?style=flat-square&labelColor=252932&color=2b2b2d">
+</p>
+
+<!-- [![npm version](https://img.shields.io/npm/v/kypi.svg)](https://www.npmjs.com/package/kypi)
+[![bundlephobia](https://img.shields.io/bundlephobia/minzip/kypi)](https://bundlephobia.com/result?p=kypi) -->
 
 ---
 
