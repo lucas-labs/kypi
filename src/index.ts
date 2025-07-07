@@ -1,29 +1,44 @@
-import ky, { HTTPError, type Options as KyOptions } from 'ky'
+import ky, {
+  HTTPError,
+  type Options as KyOptions,
+  type ResponsePromise,
+} from 'ky'
 
 export { HTTPError }
 export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete'
 
 // eslint-disable-next-line unused-imports/no-unused-vars
-export type Endpoint<In = unknown, Out = unknown> = {
+export type Endpoint<In = unknown, Out = unknown, Params = any> = {
   method: HttpMethod
   url: string
   auth?: boolean
+  __params?: Params // for type inference only
 }
 
 export interface EndpointGroup {
   [k: string]: Endpoint | EndpointGroup
 }
 
-// type‑level magic
-type CallSig<In, Out> =
-  // allow zero args when the request body is void/never/undefined
-  [In] extends [void | undefined]
-    ? () => Promise<Out>
-    : (input: In) => Promise<Out>
+// Helper types for input
+// If Params is defined, require { params: Params }
+// If In is defined and not void/undefined, require { body: In }
+// If both, require { params: Params, body: In }
+type InputFor<In, Params> = Params extends undefined
+  ? In extends void | undefined
+    ? undefined
+    : In
+  : In extends void | undefined
+    ? { params: Params }
+    : { params: Params; body: In }
+
+type CallSig<In, Out, Params> =
+  InputFor<In, Params> extends undefined
+    ? () => ResponsePromise<Out>
+    : (input: InputFor<In, Params>) => ResponsePromise<Out>
 
 export type ClientOf<G extends EndpointGroup> = {
-  [K in keyof G]: G[K] extends Endpoint<infer I, infer O>
-    ? CallSig<I, O>
+  [K in keyof G]: G[K] extends Endpoint<infer I, infer O, infer P>
+    ? CallSig<I, O, P>
     : G[K] extends EndpointGroup
       ? ClientOf<G[K]>
       : never
@@ -35,7 +50,7 @@ export interface ApiClientOptions<E extends EndpointGroup> {
   endpoints: E
 }
 
-type EpOpts = Omit<Endpoint, 'method' | 'url'>
+type EpOpts = Omit<Endpoint, 'method' | 'url' | '__params'>
 
 /**
  * Creates an endpoint definition.
@@ -44,11 +59,11 @@ type EpOpts = Omit<Endpoint, 'method' | 'url'>
  * @param url - URL path for the endpoint
  * @param opts - Optional parameters, including `auth` to indicate if authentication is required
  */
-export const endpoint = <In, Out>(
+export const endpoint = <In, Out, Params = undefined>(
   method: HttpMethod,
   url: string,
   opts: EpOpts = {},
-): Endpoint<In, Out> => ({
+): Endpoint<In, Out, Params> => ({
   method,
   url,
   auth: opts.auth ?? false,
@@ -60,54 +75,83 @@ export const endpoint = <In, Out>(
  * Will use the provided `getToken` function to retrieve the token and add it to the `Authorization`
  * header.
  */
-export const authed = <In, Out>(
+export const authed = <In, Out, Params = undefined>(
   method: HttpMethod,
   url: string,
-): Endpoint<In, Out> => endpoint(method, url, { auth: true })
+): Endpoint<In, Out, Params> => endpoint(method, url, { auth: true })
 
 // Convenience functions for creating endpoints with common HTTP methods
 
 /** Creates an HTTP GET endpoint. */
-export const get = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('get', url, opts)
+export const get = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('get', url, opts)
 /** Creates an HTTP POST endpoint. */
-export const post = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('post', url, opts)
+export const post = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('post', url, opts)
 /** Creates an HTTP PUT endpoint. */
-export const put = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('put', url, opts)
+export const put = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('put', url, opts)
 /** Creates an HTTP PATCH endpoint. */
-export const patch = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('patch', url, opts)
+export const patch = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('patch', url, opts)
 /** Creates an HTTP HEAD endpoint. */
-export const head = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('head', url, opts)
+export const head = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('head', url, opts)
 /** Creates an HTTP DELETE endpoint. */
-export const del = <In, Out>(url: string, opts?: EpOpts): Endpoint<In, Out> =>
-  endpoint('delete', url, opts)
+export const del = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+  opts?: EpOpts,
+): Endpoint<In, Out, Params> => endpoint('delete', url, opts)
 
 // Convenience functions for creating authed endpoints with common HTTP methods
 
 /** Creates an authed HTTP GET endpoint. */
-export const aget = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('get', url)
+export const aget = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('get', url)
 /** Creates an authed HTTP POST endpoint. */
-export const apost = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('post', url)
+export const apost = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('post', url)
 /** Creates an authed HTTP PUT endpoint. */
-export const aput = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('put', url)
+export const aput = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('put', url)
 /** Creates an authed HTTP PATCH endpoint. */
-export const apatch = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('patch', url)
+export const apatch = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('patch', url)
 /** Creates an authed HTTP HEAD endpoint. */
-export const ahead = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('head', url)
+export const ahead = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('head', url)
 /** Creates an authed HTTP DELETE endpoint. */
-export const adel = <In, Out>(url: string): Endpoint<In, Out> =>
-  authed('delete', url)
+export const adel = <In = undefined, Out = unknown, Params = undefined>(
+  url: string,
+): Endpoint<In, Out, Params> => authed('delete', url)
 
 export { authed as aep, endpoint as ep }
+
+function interpolateUrl(
+  url: string,
+  params: Record<string, any> | undefined,
+): string {
+  if (!params) return url
+  return url.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => {
+    if (params[key] === undefined) throw new Error(`Missing param: ${key}`)
+    return encodeURIComponent(params[key])
+  })
+}
 
 /**
  * Creates a client for the given endpoint group.
@@ -127,11 +171,26 @@ export function client<E extends EndpointGroup>({
 
     for (const [key, value] of Object.entries(group)) {
       if ('method' in value) {
-        // it's an endpoint
-        const endpoint = value as Endpoint<any, any>
+        const endpoint = value as Endpoint<any, any, any>
 
-        client[key] = async (input?: unknown) => {
-          const url = baseUrl + endpoint.url
+        client[key] = async (input?: any) => {
+          let url = baseUrl + endpoint.url
+          let params: any = undefined
+          let body: any = undefined
+          let query: any = undefined
+
+          if (input && typeof input === 'object') {
+            if ('params' in input) params = input.params
+            if ('body' in input) body = input.body
+            if ('query' in input) query = input.query
+
+            if (!body) body = input
+          } else if (input !== undefined) {
+            body = input
+          }
+
+          url = interpolateUrl(url, params)
+
           const kyopts: KyOptions = { method: endpoint.method, headers: {} }
 
           // auth header
@@ -151,17 +210,24 @@ export function client<E extends EndpointGroup>({
 
           // payload vs query string
           if (endpoint.method === 'get' || endpoint.method === 'head') {
-            if (input && typeof input === 'object') {
-              kyopts.searchParams = input as Record<string, any>
+            if (query) {
+              kyopts.searchParams = query
+            } else if (
+              input &&
+              typeof input === 'object' &&
+              !('body' in input) &&
+              !('params' in input) &&
+              !('query' in input)
+            ) {
+              kyopts.searchParams = input
             }
-          } else if (input !== undefined) {
-            kyopts.json = input
+          } else if (body !== undefined) {
+            kyopts.json = body
           }
 
-          return ky(url, kyopts).json()
+          return ky(url, kyopts)
         }
       } else {
-        // nested group
         client[key] = build(value as EndpointGroup)
       }
     }

@@ -2,22 +2,22 @@ import ky from 'ky'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   aget,
+  ahead,
+  adel,
+  apatch,
   apost,
+  aput,
   authed,
   client,
+  del,
   endpoint,
+  ep,
   get,
+  head,
+  patch,
   post,
   put,
   type EndpointGroup,
-  patch,
-  head,
-  del,
-  aput,
-  apatch,
-  ahead,
-  adel,
-  ep,
   aep,
 } from '../src'
 
@@ -56,6 +56,20 @@ describe('client', () => {
     nested: {
       baz: put<{ y: number }, { done: boolean }>('/baz'),
     },
+    // Path param endpoints
+    getById: get<undefined, { id: number; name: string }, { id: number }>(
+      '/foo/:id',
+    ),
+    deleteById: del<undefined, {}, { id: number }>('/foo/:id'),
+    updateById: put<
+      { name: string },
+      { id: number; name: string },
+      { id: number }
+    >('/foo/:id'),
+    getWithQuery: get<{ q: string }, { result: string }, { id: number }>(
+      '/foo/:id/search',
+    ),
+    postPrimitive: post<string, { ok: boolean }>('/primitive'),
   }
 
   const baseUrl = 'https://api.test'
@@ -96,6 +110,43 @@ describe('client', () => {
     expect(kyMock).toHaveBeenCalledWith(
       'https://api.test/baz',
       expect.objectContaining({ method: 'put', json: { y: 2 } }),
+    )
+  })
+
+  // Path param tests
+  it('interpolates path params for GET', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.getById({ params: { id: 42 } })
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/foo/42',
+      expect.objectContaining({ method: 'get' }),
+    )
+  })
+
+  it('interpolates path params for DELETE', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.deleteById({ params: { id: 99 } })
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/foo/99',
+      expect.objectContaining({ method: 'delete' }),
+    )
+  })
+
+  it('interpolates path params and sends body for PUT', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.updateById({ params: { id: 7 }, body: { name: 'Zed' } })
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/foo/7',
+      expect.objectContaining({ method: 'put', json: { name: 'Zed' } }),
+    )
+  })
+
+  it('interpolates path params and sends query for GET', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.getWithQuery({ params: { id: 5 }, query: { q: 'test' } })
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/foo/5/search',
+      expect.objectContaining({ method: 'get', searchParams: { q: 'test' } }),
     )
   })
 
@@ -146,6 +197,27 @@ describe('client', () => {
     expect(kyMock).toHaveBeenCalledWith(
       'https://api.test/bar',
       expect.objectContaining({ method: 'post' }),
+    )
+  })
+
+  it('calls POST with primitive input as body', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.postPrimitive('hello')
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/primitive',
+      expect.objectContaining({ method: 'post', json: 'hello' }),
+    )
+  })
+
+  it('throws an error if a required path param is missing', async () => {
+    const endpoints: EndpointGroup = {
+      getById: get<undefined, { id: number; name: string }, { id: number }>(
+        '/foo/:id',
+      ),
+    }
+    const api = client({ baseUrl, endpoints }) as any
+    await expect(api.getById({ params: {} })).rejects.toThrow(
+      'Missing param: id',
     )
   })
 })

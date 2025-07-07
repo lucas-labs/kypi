@@ -30,7 +30,7 @@ describe('createClientHook', () => {
     const { result } = renderHook(() => useApi({ baseUrl: 'x' }))
     await act(async () => {
       const res = await (result.current as any).foo({ id: 1 })
-      expect(res).toBe('ok')
+      expect(await res.json()).toBe('ok')
     })
   })
 })
