@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { client, get, post, del } from '../src'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { client, del, get, post } from '../src'
 
 vi.mock('ky', () => ({
   default: vi.fn(() => ({ json: vi.fn(() => Promise.resolve('ok')) })),
@@ -78,6 +78,7 @@ describe('client', () => {
     const api = client({
       baseUrl,
       endpoints,
+      // eslint-disable-next-line require-await
       getToken: async () => 'async-token',
     }) as any
     await api.authed()

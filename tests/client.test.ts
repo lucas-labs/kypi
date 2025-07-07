@@ -1,4 +1,3 @@
-import ky from 'ky'
 import { describe, expect, it } from 'vitest'
 import {
   adel,
@@ -9,7 +8,6 @@ import {
   apost,
   aput,
   authed,
-  client,
   del,
   endpoint,
   ep,
@@ -17,8 +15,6 @@ import {
   head,
   patch,
   post,
-  put,
-  type EndpointGroup,
 } from '../src'
 
 describe('endpoint creators', () => {

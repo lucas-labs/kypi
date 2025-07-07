@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { client, get, post, del } from '../src'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { client, del, get, post } from '../src'
 
 // Helper to create a Response object for fetch mocks
 function createJsonResponse(body: any, init?: ResponseInit) {
