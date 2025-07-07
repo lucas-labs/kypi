@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { client, del, get, post } from '../src'
+import { client, del, get, post, put } from '../src'
 
 vi.mock('ky', () => ({
-  default: vi.fn(() => ({ json: vi.fn(() => Promise.resolve('ok')) })),
+  default: vi.fn(() => ({
+    json: () => Promise.resolve('ok'),
+    foo: 123,
+  })),
 }))
 
 describe('client', () => {
@@ -17,7 +20,7 @@ describe('client', () => {
       '/foo/:id',
     ),
     deleteById: del<undefined, {}, { id: number }>('/foo/:id'),
-    updateById: post<
+    updateById: put<
       { name: string },
       { id: number; name: string },
       { id: number }
@@ -133,5 +136,13 @@ describe('client', () => {
     const api = client({ baseUrl, endpoints }) as any
     await api.bar({ x: 'hi' }, { searchParams: 'not-an-object' } as any)
     await api.bar({ x: 'hi' }, { searchParams: [1, 2, 3] } as any)
+  })
+
+  it('should access a non-function property on the deferred ResponsePromise', async () => {
+    const { client, get } = await import('../src')
+    const api = client({ baseUrl: '', endpoints: { foo: get('/foo') } })
+    const resp = api.foo({})
+    const value = await (resp as any).foo()
+    expect(value).toBe(123)
   })
 })

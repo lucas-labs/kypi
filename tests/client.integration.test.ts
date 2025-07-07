@@ -68,6 +68,21 @@ describe('kypi client', () => {
     expect(authHeader).toBe('Bearer mytoken')
   })
 
+  it('should support sync getToken and set Authorization header', async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(
+        createJsonResponse([{ id: 1, title: 'Test' }], { status: 200 }),
+      )
+    const getToken = vi.fn(() => 'mytoken')
+    const api = client({ baseUrl: 'https://example.com', endpoints, getToken })
+    await api.products().json()
+    const fetchCall = (globalThis.fetch as any).mock.calls[0]
+    const req = fetchCall[0] // This is the Request object
+    const authHeader = req.headers.get('Authorization')
+    expect(authHeader).toBe('Bearer mytoken')
+  })
+
   it('should throw on HTTP error', async () => {
     globalThis.fetch = vi
       .fn()

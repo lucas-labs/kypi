@@ -83,7 +83,7 @@ export const authed = <In, Out, Params = undefined>(
   url: string,
 ): Endpoint<In, Out, Params> => endpoint(method, url, { auth: true })
 
-// Convenience functions for creating endpoints with common HTTP methods
+// convenience functions for creating endpoints with common HTTP methods
 
 /** Creates an HTTP GET endpoint. */
 export const get = <In = undefined, Out = unknown, Params = undefined>(
@@ -156,7 +156,7 @@ function interpolateUrl(
   })
 }
 
-// Helper to create a thenable proxy that defers the ky call until needed
+// helper to create a thenable proxy that defers the ky call until needed
 function createDeferredKyCall(
   makeKyCall: () => Promise<ResponsePromise<any>>,
 ): ResponsePromise<any> {
@@ -168,14 +168,14 @@ function createDeferredKyCall(
   const handler: ProxyHandler<any> = {
     get(_target, prop: keyof ResponsePromise<any> | symbol) {
       if (prop === 'then') {
-        // Make this object awaitable
+        // make this object awaitable
         return (...args: any[]) => getPromise().then(...args)
       }
       return (...args: any[]) =>
         getPromise().then((resp) => {
           const fn = resp[prop as keyof ResponsePromise<any>]
           if (typeof fn === 'function') {
-            // @ts-expect-error: Ky's methods accept any[] at runtime, this is safe
+            // @ts-expect-error: ky's methods accept any[] at runtime, this is safe
             return fn.apply(resp, args)
           }
           return fn
@@ -205,7 +205,10 @@ export function client<E extends EndpointGroup>({
       if ('method' in value) {
         const endpoint = value as Endpoint<any, any, any>
 
-        client[key] = (input?: any, kyOptions?: KyOptions) => {
+        client[key] = (
+          input?: any,
+          kyOptions?: KyOptions,
+        ): ResponsePromise<any> => {
           const makeKyCall = async (): Promise<ResponsePromise<any>> => {
             let url = baseUrl + endpoint.url
             let params: any = undefined
