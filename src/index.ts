@@ -33,8 +33,11 @@ type InputFor<In, Params> = Params extends undefined
 
 type CallSig<In, Out, Params> =
   InputFor<In, Params> extends undefined
-    ? () => ResponsePromise<Out>
-    : (input: InputFor<In, Params>) => ResponsePromise<Out>
+    ? (kyOptions?: KyOptions) => ResponsePromise<Out>
+    : (
+        input: InputFor<In, Params>,
+        kyOptions?: KyOptions,
+      ) => ResponsePromise<Out>
 
 export type ClientOf<G extends EndpointGroup> = {
   [K in keyof G]: G[K] extends Endpoint<infer I, infer O, infer P>
@@ -173,7 +176,7 @@ export function client<E extends EndpointGroup>({
       if ('method' in value) {
         const endpoint = value as Endpoint<any, any, any>
 
-        client[key] = async (input?: any) => {
+        client[key] = async (input?: any, kyOptions?: KyOptions) => {
           let url = baseUrl + endpoint.url
           let params: any = undefined
           let body: any = undefined
@@ -183,7 +186,6 @@ export function client<E extends EndpointGroup>({
             if ('params' in input) params = input.params
             if ('body' in input) body = input.body
             if ('query' in input) query = input.query
-
             if (!body) body = input
           } else if (input !== undefined) {
             body = input
@@ -191,7 +193,7 @@ export function client<E extends EndpointGroup>({
 
           url = interpolateUrl(url, params)
 
-          const kyopts: KyOptions = { method: endpoint.method, headers: {} }
+          let kyopts: KyOptions = { method: endpoint.method, headers: {} }
 
           // auth header
           if (endpoint.auth) {
@@ -223,6 +225,28 @@ export function client<E extends EndpointGroup>({
             }
           } else if (body !== undefined) {
             kyopts.json = body
+          }
+
+          // Merge user-provided KyOptions (user overrides)
+          if (kyOptions) {
+            const mergeObj = (a: any, b: any) => {
+              const aObj =
+                a && typeof a === 'object' && !Array.isArray(a) ? a : undefined
+              const bObj =
+                b && typeof b === 'object' && !Array.isArray(b) ? b : undefined
+              if (aObj && bObj) return { ...aObj, ...bObj }
+              if (b !== undefined) return b
+              return a
+            }
+            kyopts = {
+              ...kyopts,
+              ...kyOptions,
+              headers: { ...kyopts.headers, ...kyOptions.headers },
+              searchParams: mergeObj(
+                kyopts.searchParams,
+                kyOptions.searchParams,
+              ),
+            }
           }
 
           return ky(url, kyopts)

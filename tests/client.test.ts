@@ -220,6 +220,57 @@ describe('client', () => {
       'Missing param: id',
     )
   })
+
+  it('merges per-request KyOptions (headers, searchParams, etc)', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.foo(
+      { id: 1 },
+      { headers: { 'X-Test': 'abc' }, searchParams: { extra: 'y' } },
+    )
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/foo',
+      expect.objectContaining({
+        method: 'get',
+        searchParams: { id: 1, extra: 'y' },
+        headers: expect.objectContaining({ 'X-Test': 'abc' }),
+      }),
+    )
+  })
+
+  it('per-request KyOptions overrides default headers', async () => {
+    const api = client({ baseUrl, endpoints, getToken: () => 'tok' }) as any
+    await api.authed(undefined, { headers: { Authorization: 'Custom' } })
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/secret',
+      expect.objectContaining({
+        method: 'get',
+        headers: expect.objectContaining({ Authorization: 'Custom' }),
+      }),
+    )
+  })
+
+  it('handles non-object searchParams in per-request KyOptions (coverage)', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    // Use a POST endpoint so searchParams is not set by default
+    await api.bar({ x: 'hi' }, { searchParams: 'not-an-object' } as any)
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/bar',
+      expect.objectContaining({
+        method: 'post',
+        json: { x: 'hi' },
+        searchParams: 'not-an-object',
+      }),
+    )
+    await api.bar({ x: 'hi' }, { searchParams: [1, 2, 3] } as any)
+    expect(kyMock).toHaveBeenCalledWith(
+      'https://api.test/bar',
+      expect.objectContaining({
+        method: 'post',
+        json: { x: 'hi' },
+        searchParams: [1, 2, 3],
+      }),
+    )
+  })
 })
 
 describe('utility function coverage', () => {
