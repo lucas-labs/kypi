@@ -7,3 +7,4 @@ ignore:
   - vitest.config.ts
   - '*.d.ts'
   - '*.js'
+  - bump.config.ts
