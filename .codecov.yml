@@ -1,0 +1,9 @@
+ignore:
+  - 'playground/*'
+  - 'tsdown.config.ts'
+  - 'dist/*'
+  - 'node_modules/*'
+  - 'eslint.config.js'
+  - 'vitest.config.ts'
+  - '*.d.ts'
+  - '*.js'
