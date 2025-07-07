@@ -1,12 +1,12 @@
 <div align="center">
 	<br>
 	<div>
-		<img width="320" src="media/logo.svg" alt="kypi">
+		<img width="500" src="media/logo.svg" alt="kypi">
 	</div>
 	<br>
 	<h1>kypi</h1>
 	<p>
-		<b>Type-safe, ergonomic API client builder for TypeScript & React</b>
+		<b>Type-safe, ergonomic API client builder for TypeScript & React based on `ky`</b>
 	</p>
 	<br>
 </div>
