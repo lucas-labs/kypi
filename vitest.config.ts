@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: './tests/setup.ts',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'clover'],
+      reporter: ['text', 'html', 'clover', 'lcov'],
       exclude: [
         'playground/**',
         'tsdown.config.ts',
