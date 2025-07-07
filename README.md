@@ -6,7 +6,7 @@
 	<br>
 	<h1>kypi</h1>
 	<p>
-		<b>Type-safe, ergonomic API client builder for TypeScript & React based on `ky`</b>
+		<b>Type-safe, ergonomic API client builder for TypeScript & React based on <code>ky</code></b>
 	</p>
 	<br>
 </div>
