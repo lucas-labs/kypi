@@ -12,13 +12,10 @@
 </div>
 
 <p align="center">
-<img alt="Codecov" src="https://img.shields.io/codecov/c/github/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/lucas-labs/kypi/ci.yml?style=flat-square&label=CI&labelColor=6e61b2&color=2b2b2d"> 
-<img alt="License: MIT" src="https://img.shields.io/github/license/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> <img alt="NPM Version" src="https://img.shields.io/npm/v/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> 
-<img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/kypi?style=flat-square&label=bundlephobia&labelColor=6e61b2&color=2b2b2d">
+<a href="https://app.codecov.io/github/lucas-labs/kypi/tree/master" target="_blank"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d" /></a> <a href="https://github.com/lucas-labs/kypi/actions/workflows/ci.yml?query=branch%3Amaster" target="_blank"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/lucas-labs/kypi/ci.yml?style=flat-square&label=CI&labelColor=6e61b2&color=2b2b2d" /></a> 
+<a href="./license"><img alt="License: MIT" src="https://img.shields.io/github/license/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d" /></a> <a href="https://www.npmjs.com/package/kypi" target="_blank"><img alt="NPM Version" src="https://img.shields.io/npm/v/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d" /></a> 
+<a href="https://bundlephobia.com/package/kypi" target="_blank"><img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/kypi?style=flat-square&label=bundlephobia&labelColor=6e61b2&color=2b2b2d" />
 </p>
-
-<!-- [![npm version](https://img.shields.io/npm/v/kypi.svg)](https://www.npmjs.com/package/kypi)
-[![bundlephobia](https://img.shields.io/bundlephobia/minzip/kypi)](https://bundlephobia.com/result?p=kypi) -->
 
 ---
 
