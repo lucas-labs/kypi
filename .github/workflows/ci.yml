@@ -36,6 +36,9 @@ jobs:
       - name: Generate JUnit report
         run: bun vitest --reporter=junit --outputFile=test-report.junit.xml
 
+      - name: Show JUnit report content
+        run: cat test-report.junit.xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
