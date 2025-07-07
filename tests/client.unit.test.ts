@@ -38,6 +38,12 @@ describe('client', () => {
       '/foo/:id/search',
     ),
     postPrimitive: post<string, { ok: boolean }>('/primitive'),
+    postWithAll: post<
+      { foo: string },
+      { ok: boolean },
+      { id: number },
+      { q: string }
+    >('/bar/:id'),
   }
 
   const baseUrl = 'https://api.test'
@@ -236,5 +242,22 @@ describe('client', () => {
     const resp = api.foo({})
     const value = await (resp as any).foo()
     expect(value).toBe(123)
+  })
+
+  it('sends body, path params, and query params for POST with all generics', async () => {
+    const api = client({ baseUrl, endpoints }) as any
+    await api.postWithAll({
+      params: { id: 1 },
+      query: { q: 'abc' },
+      body: { foo: 'bar' },
+    })
+    expect(ky).toHaveBeenCalledWith(
+      'https://api.test/bar/1',
+      expect.objectContaining({
+        method: 'post',
+        searchParams: { q: 'abc' },
+        json: { foo: 'bar' },
+      }),
+    )
   })
 })
