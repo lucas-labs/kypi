@@ -21,6 +21,7 @@ export function App() {
   const fetchProducts = async () => {
     setLoading(true)
     const data = await api.products().json()
+    console.log('Fetched products:', data)
     setProducts(data)
     setLoading(false)
   }
