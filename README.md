@@ -56,7 +56,7 @@ yarn add kypi
 ### 1. Define your endpoints
 
 ```ts
-import { get, post, del, type EndpointGroup } from 'kypi'
+import { del, get, post, type EndpointGroup } from 'kypi'
 
 const endpoints = {
   products: get<void, Array<{ id: number; title: string }>>('/products'),
@@ -193,8 +193,8 @@ await api.products(undefined, { headers: { 'X-Request-ID': 'abc' } })
 Here's a taste of how you might use kypi in a React app:
 
 ```tsx
+import { del, get, post } from 'kypi'
 import { createClientHook } from 'kypi/react'
-import { get, post, del } from 'kypi'
 
 const useApi = createClientHook({
   products: get<void, Array<{ id: number; title: string }>>('/products'),
