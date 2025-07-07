@@ -83,7 +83,7 @@ export const authed = <In, Out, Params = undefined>(
   url: string,
 ): Endpoint<In, Out, Params> => endpoint(method, url, { auth: true })
 
-// Convenience functions for creating endpoints with common HTTP methods
+// convenience functions for creating endpoints with common HTTP methods
 
 /** Creates an HTTP GET endpoint. */
 export const get = <In = undefined, Out = unknown, Params = undefined>(
@@ -156,6 +156,35 @@ function interpolateUrl(
   })
 }
 
+// helper to create a thenable proxy that defers the ky call until needed
+function createDeferredKyCall(
+  makeKyCall: () => Promise<ResponsePromise<any>>,
+): ResponsePromise<any> {
+  let promise: Promise<ResponsePromise<any>> | null = null
+  const getPromise = () => {
+    if (!promise) promise = makeKyCall()
+    return promise
+  }
+  const handler: ProxyHandler<any> = {
+    get(_target, prop: keyof ResponsePromise<any> | symbol) {
+      if (prop === 'then') {
+        // make this object awaitable
+        return (...args: any[]) => getPromise().then(...args)
+      }
+      return (...args: any[]) =>
+        getPromise().then((resp) => {
+          const fn = resp[prop as keyof ResponsePromise<any>]
+          if (typeof fn === 'function') {
+            // @ts-expect-error: ky's methods accept any[] at runtime, this is safe
+            return fn.apply(resp, args)
+          }
+          return fn
+        })
+    },
+  }
+  return new Proxy({}, handler) as ResponsePromise<any>
+}
+
 /**
  * Creates a client for the given endpoint group.
  *
@@ -176,80 +205,91 @@ export function client<E extends EndpointGroup>({
       if ('method' in value) {
         const endpoint = value as Endpoint<any, any, any>
 
-        client[key] = async (input?: any, kyOptions?: KyOptions) => {
-          let url = baseUrl + endpoint.url
-          let params: any = undefined
-          let body: any = undefined
-          let query: any = undefined
+        client[key] = (
+          input?: any,
+          kyOptions?: KyOptions,
+        ): ResponsePromise<any> => {
+          const makeKyCall = async (): Promise<ResponsePromise<any>> => {
+            let url = baseUrl + endpoint.url
+            let params: any = undefined
+            let body: any = undefined
+            let query: any = undefined
 
-          if (input && typeof input === 'object') {
-            if ('params' in input) params = input.params
-            if ('body' in input) body = input.body
-            if ('query' in input) query = input.query
-            if (!body) body = input
-          } else if (input !== undefined) {
-            body = input
-          }
+            if (input && typeof input === 'object') {
+              if ('params' in input) params = input.params
+              if ('body' in input) body = input.body
+              if ('query' in input) query = input.query
+              if (!body) body = input
+            } else if (input !== undefined) {
+              body = input
+            }
 
-          url = interpolateUrl(url, params)
+            url = interpolateUrl(url, params)
 
-          let kyopts: KyOptions = { method: endpoint.method, headers: {} }
+            let kyopts: KyOptions = { method: endpoint.method, headers: {} }
 
-          // auth header
-          if (endpoint.auth) {
-            const token = getToken?.()
-            if (token) {
-              if (token instanceof Promise) {
-                const awaitedToken = await token
-                ;(kyopts.headers as Record<string, string>).Authorization =
-                  `Bearer ${awaitedToken}`
-              } else {
-                ;(kyopts.headers as Record<string, string>).Authorization =
-                  `Bearer ${token}`
+            // auth header
+            if (endpoint.auth) {
+              const token = getToken?.()
+              if (token) {
+                if (token instanceof Promise) {
+                  const awaitedToken = await token
+                  ;(kyopts.headers as Record<string, string>).Authorization =
+                    `Bearer ${awaitedToken}`
+                } else {
+                  ;(kyopts.headers as Record<string, string>).Authorization =
+                    `Bearer ${token}`
+                }
               }
             }
+
+            // payload vs query string
+            if (endpoint.method === 'get' || endpoint.method === 'head') {
+              if (query) {
+                kyopts.searchParams = query
+              } else if (
+                input &&
+                typeof input === 'object' &&
+                !('body' in input) &&
+                !('params' in input) &&
+                !('query' in input)
+              ) {
+                kyopts.searchParams = input
+              }
+            } else if (body !== undefined) {
+              kyopts.json = body
+            }
+
+            // merge user-provided KyOptions (user overrides)
+            if (kyOptions) {
+              const mergeObj = (a: any, b: any) => {
+                const aObj =
+                  a && typeof a === 'object' && !Array.isArray(a)
+                    ? a
+                    : undefined
+                const bObj =
+                  b && typeof b === 'object' && !Array.isArray(b)
+                    ? b
+                    : undefined
+                if (aObj && bObj) return { ...aObj, ...bObj }
+                if (b !== undefined) return b
+                return a
+              }
+              kyopts = {
+                ...kyopts,
+                ...kyOptions,
+                headers: { ...kyopts.headers, ...kyOptions.headers },
+                searchParams: mergeObj(
+                  kyopts.searchParams,
+                  kyOptions.searchParams,
+                ),
+              }
+            }
+
+            return ky(url, kyopts)
           }
 
-          // payload vs query string
-          if (endpoint.method === 'get' || endpoint.method === 'head') {
-            if (query) {
-              kyopts.searchParams = query
-            } else if (
-              input &&
-              typeof input === 'object' &&
-              !('body' in input) &&
-              !('params' in input) &&
-              !('query' in input)
-            ) {
-              kyopts.searchParams = input
-            }
-          } else if (body !== undefined) {
-            kyopts.json = body
-          }
-
-          // Merge user-provided KyOptions (user overrides)
-          if (kyOptions) {
-            const mergeObj = (a: any, b: any) => {
-              const aObj =
-                a && typeof a === 'object' && !Array.isArray(a) ? a : undefined
-              const bObj =
-                b && typeof b === 'object' && !Array.isArray(b) ? b : undefined
-              if (aObj && bObj) return { ...aObj, ...bObj }
-              if (b !== undefined) return b
-              return a
-            }
-            kyopts = {
-              ...kyopts,
-              ...kyOptions,
-              headers: { ...kyopts.headers, ...kyOptions.headers },
-              searchParams: mergeObj(
-                kyopts.searchParams,
-                kyOptions.searchParams,
-              ),
-            }
-          }
-
-          return ky(url, kyopts)
+          return createDeferredKyCall(makeKyCall)
         }
       } else {
         client[key] = build(value as EndpointGroup)
