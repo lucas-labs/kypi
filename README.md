@@ -13,7 +13,8 @@
 
 <p align="center">
 <img alt="Codecov" src="https://img.shields.io/codecov/c/github/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/lucas-labs/kypi/ci.yml?style=flat-square&label=CI&labelColor=6e61b2&color=2b2b2d"> 
-<img alt="License: MIT" src="https://img.shields.io/github/license/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d">
+<img alt="License: MIT" src="https://img.shields.io/github/license/lucas-labs/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> <img alt="NPM Version" src="https://img.shields.io/npm/v/kypi?style=flat-square&labelColor=6e61b2&color=2b2b2d"> 
+<img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/kypi?style=flat-square&label=bundlephobia&labelColor=6e61b2&color=2b2b2d">
 </p>
 
 <!-- [![npm version](https://img.shields.io/npm/v/kypi.svg)](https://www.npmjs.com/package/kypi)
@@ -23,7 +24,7 @@
 
 ## What is kypi?
 
-**kypi** is a tiny, type-safe toolkit for building API clients in TypeScript, with optional React integration.
+**kypi** is a small, type-safe toolkit for building API clients in TypeScript, with optional React integration.
 
 It's built on top of the fantastic [`ky`](https://github.com/sindresorhus/ky) HTTP client by [Sindre Sorhus](https://sindresorhus.com/) (thank you Sindre! 🙏), and aims to make API clients in your apps as delightful as making raw requests with `ky`.
 
