@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 permissions:
   contents: write
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
         with:
-          bun-version: latest
+          bun-version-file: '.bun-version'
 
       - name: Install dependencies
         run: bun install
@@ -30,4 +30,4 @@ jobs:
       - name: Publish to npm
         run: bun publish --yes
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
