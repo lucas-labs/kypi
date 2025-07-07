@@ -3,7 +3,7 @@ import { sxzz } from '@sxzz/eslint-config'
 export default sxzz(
   {},
   {
-    ignores: ['README.md'],
+    ignores: ['readme.md'],
   },
 )
 //.removePlugins('jsdoc')
