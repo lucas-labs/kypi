@@ -217,6 +217,16 @@ describe('client', () => {
     )
   })
 
+  it("doesn't try to interpolate params in baseUrls (could have a port number :8080)", async () => {
+    const endpoints = {
+      getById: get<undefined, { id: number; name: string }, { id: number }>(
+        '/foo/:id',
+      ),
+    }
+    const api = client({ baseUrl: 'http://example:8080/api', endpoints }) as any
+    await api.getById({ params: { id: 2 } })
+  })
+
   it('merges per-request KyOptions (headers, searchParams, etc)', async () => {
     const api = client({ baseUrl, endpoints }) as any
     await api.foo(

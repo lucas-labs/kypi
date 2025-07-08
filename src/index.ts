@@ -279,7 +279,6 @@ export function client<E extends EndpointGroup>({
           kyOptions?: KyOptions,
         ): ResponsePromise<any> => {
           const makeKyCall = async (): Promise<ResponsePromise<any>> => {
-            let url = baseUrl + endpoint.url
             let params: any = undefined
             let body: any = undefined
             let query: any = undefined
@@ -293,8 +292,7 @@ export function client<E extends EndpointGroup>({
               body = input
             }
 
-            url = interpolateUrl(url, params)
-
+            const url = baseUrl + interpolateUrl(endpoint.url, params)
             let kyopts: KyOptions = { method: endpoint.method, headers: {} }
 
             // auth header
