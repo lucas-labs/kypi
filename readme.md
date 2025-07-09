@@ -43,7 +43,11 @@ const api = client({
 // Usage
 const starships = await api.starships.list().json()
 const enterprise = await api.starships.get({ id: 1701 }).json()
-const newStarship = await api.starships.create({ name: 'USS Discovery', class: 'Crossfield', registry: 'NCC-1031' }).json()
+const newStarship = await api.starships.create({ 
+  name: 'USS Discovery',
+  class: 'Crossfield',
+  registry: 'NCC-1031'
+}).json()
 ```
 
 <!-- TOC -->
