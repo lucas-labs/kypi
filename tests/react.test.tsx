@@ -4,7 +4,24 @@ import { get, type EndpointGroup } from '../src'
 import { createClientHook } from '../src/react'
 
 vi.mock('ky', () => ({
-  default: vi.fn(() => ({ json: vi.fn(() => Promise.resolve('ok')) })),
+  default: vi.fn((url, opts) => {
+    const response = {
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      blob: () => Promise.resolve(new Blob()),
+      formData: () => Promise.resolve(new FormData()),
+      json: <J = unknown,>() => Promise.resolve('ok' as unknown as J),
+      text: () => Promise.resolve('ok'),
+      foo: 123,
+      url,
+      opts,
+      headers: opts && opts.headers ? opts.headers : {},
+      method: opts && opts.method,
+      jsonBody: opts && opts.json,
+      searchParams: opts && opts.searchParams,
+    }
+    const promise = Promise.resolve(response)
+    return Object.assign(promise, response)
+  }),
 }))
 
 const endpoints: EndpointGroup = {

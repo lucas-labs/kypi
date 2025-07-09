@@ -17,7 +17,39 @@
 <a href="https://bundlephobia.com/package/kypi" target="_blank"><img alt="npm bundle size" src="https://img.shields.io/bundlephobia/minzip/kypi?style=flat-square&label=bundlephobia&labelColor=6e61b2&color=2b2b2d" />
 </p>
 
+</br>
+
 ---
+
+</br>
+
+<!-- TOC -->
+
+## Table of Contents
+
+- [What is kypi?](#what-is-kypi)
+- [Install](#install)
+- [Quickstart](#quickstart)
+  - [1. Define your endpoints](#1-define-your-endpoints)
+  - [2. Create a client](#2-create-a-client)
+  - [3. Call your API](#3-call-your-api)
+- [React Integration](#react-integration)
+- [API Reference](#api-reference)
+  - [Endpoint Creators](#endpoint-creators)
+    - [Example](#example)
+  - [Client](#client)
+    - [Example](#example-1)
+  - [Auth](#auth)
+- [Advanced Usage](#advanced-usage)
+  - [Path Params](#path-params)
+  - [Query Params](#query-params)
+  - [Per-request Options](#per-request-options)
+- [React Example](#react-example)
+- [TODO](#todo)
+- [Thanks](#thanks)
+- [License](#license)
+
+<!-- /TOC -->
 
 ## What is kypi?
 
@@ -135,7 +167,11 @@ const getUser = get<void, { id: number; name: string }, { id: number }>(
 
 ### Client
 
-- `client({ baseUrl, endpoints, getToken? })` — creates a type-safe API client.
+- `client({ baseUrl, endpoints, getToken?, onError? })` — creates a type-safe API client.
+  - `baseUrl`: the base URL for your API.
+  - `endpoints`: an object containing your endpoint definitions.
+  - `getToken` (optional): a function that returns the authentication token.
+  - `onError` (optional): a function called with the error if a request fails. Useful for global error handling (e.g., showing a toast, logging out on 401, etc).
 
 Each endpoint method:
 
@@ -145,6 +181,18 @@ Each endpoint method:
 #### Example
 
 ```ts
+const api = client({
+  baseUrl: 'https://fakestoreapi.com',
+  endpoints,
+  onError: (error) => {
+    if (error.response?.status === 401) {
+      // handle unauthorized globally
+      toast("Oops! You're not logged in, intruder!")
+      logout()
+    }
+  },
+})
+
 await api.products({ id: 1 }, { headers: { 'X-Foo': 'bar' } })
 ```
 
@@ -177,10 +225,10 @@ await api.products({ query: { search: 'foo' } })
 
 ### Per-request Options
 
-Override any [`ky` option](https://github.com/sindresorhus/ky#options) per call:
+We support passing custom [`ky` options](https://github.com/sindresorhus/ky#options).
 
 ```ts
-await api.products(undefined, { headers: { 'X-Request-ID': 'abc' } })
+await api.products({ search: 'foo' }, { headers: { 'X-Request-ID': 'abc', retry: { ... } } })
 ```
 
 ---
