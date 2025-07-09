@@ -5,6 +5,7 @@ export const createClientHook = <E extends EndpointGroup>(endpoints: E) => {
   const useClient = ({
     baseUrl,
     getToken,
+    onError,
   }: Omit<ApiClientOptions<typeof endpoints>, 'endpoints'>) => {
     return useMemo(
       () =>
@@ -12,6 +13,7 @@ export const createClientHook = <E extends EndpointGroup>(endpoints: E) => {
           baseUrl,
           getToken,
           endpoints,
+          onError,
         }),
       [baseUrl, getToken],
     )

@@ -2,11 +2,16 @@ import ky from 'ky'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { client, del, get, post, put } from '../src'
 
+// Local ky mock for this test file
 vi.mock('ky', () => ({
   default: vi.fn((url, opts) => {
-    return {
-      json: () => Promise.resolve('ok'),
-      foo: 123, // non-function property for coverage
+    const response = {
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      blob: () => Promise.resolve(new Blob()),
+      formData: () => Promise.resolve(new FormData()),
+      json: <J = unknown>() => Promise.resolve(undefined as unknown as J),
+      text: () => Promise.resolve('ok'),
+      foo: 123,
       url,
       opts,
       headers: opts && opts.headers ? opts.headers : {},
@@ -14,6 +19,8 @@ vi.mock('ky', () => ({
       jsonBody: opts && opts.json,
       searchParams: opts && opts.searchParams,
     }
+    const promise = Promise.resolve(response)
+    return Object.assign(promise, response)
   }),
 }))
 
@@ -269,5 +276,31 @@ describe('client', () => {
         json: { foo: 'bar' },
       }),
     )
+  })
+
+  it('calls onError hook if request fails', async () => {
+    const error = new Error('fail')
+    const response = {
+      arrayBuffer: () => Promise.reject(error),
+      blob: () => Promise.reject(error),
+      formData: () => Promise.reject(error),
+      json: () => Promise.reject(error),
+      text: () => Promise.reject(error),
+      foo: 123,
+      url: '',
+      opts: {},
+      headers: {},
+      method: '',
+      jsonBody: undefined,
+      searchParams: undefined,
+    }
+    const promise = Promise.reject(error)
+    vi.mocked(ky).mockImplementationOnce(() => Object.assign(promise, response))
+    const onError = vi.fn()
+    const api = client({ baseUrl, endpoints, onError }) as any
+    await expect(api.foo({ id: 1 })).rejects.toThrow('fail')
+
+    // check the onError hook was actually called
+    expect(onError).toHaveBeenCalledWith(error)
   })
 })

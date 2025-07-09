@@ -60,6 +60,7 @@ export interface ApiClientOptions<E extends EndpointGroup> {
   baseUrl: string
   getToken?: () => string | null | Promise<string | null>
   endpoints: E
+  onError?: (error: HTTPError) => void
 }
 
 type EpOpts = Omit<Endpoint, 'method' | 'url' | '__params'>
@@ -261,10 +262,12 @@ function createDeferredKyCall(
  * @param options.baseUrl - The base URL for the API
  * @param options.getToken - Optional function to retrieve an authentication token
  * @param options.endpoints - The endpoint group definition
+ * @param options.onError - Optional onError hook, will be called if the request throws an error
  */
 export function client<E extends EndpointGroup>({
   baseUrl,
   getToken,
+  onError,
   endpoints,
 }: ApiClientOptions<E>): ClientOf<E> {
   const build = (group: EndpointGroup): any => {
@@ -355,7 +358,10 @@ export function client<E extends EndpointGroup>({
               }
             }
 
-            return ky(url, kyopts)
+            return ky(url, kyopts).catch((error) => {
+              onError?.(error as HTTPError)
+              throw error
+            })
           }
 
           return createDeferredKyCall(makeKyCall)

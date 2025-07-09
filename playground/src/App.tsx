@@ -11,7 +11,12 @@ const useApi = createClientHook({
 })
 
 export function App() {
-  const api = useApi({ baseUrl: 'https://fakestoreapi.com' })
+  const api = useApi({
+    baseUrl: 'https://fakestoreapi.com',
+    onError: () => {
+      return 'strigi'
+    },
+  })
   const [products, setProducts] = useState<
     Array<{ id: number; title: string }>
   >([])
