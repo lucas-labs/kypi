@@ -36,14 +36,26 @@ describe('client', () => {
       '/foo/:id',
     ),
     deleteById: del<undefined, {}, { id: number }>('/foo/:id'),
-    updateById: put<{ name: string }, { id: number; name: string }, { id: number }>('/foo/:id'),
+    updateById: put<
+      { name: string },
+      { id: number; name: string },
+      { id: number }
+    >('/foo/:id'),
     getWithQuery: get<void, { result: string }, { id: number }, { q: string }>(
       '/foo/:id/search',
     ),
     postPrimitive: post<string, { ok: boolean }>('/primitive'),
-    postWithAll: post<{ foo: string },{ ok: boolean },{ id: number },{ q: string }>('/bar/:id'),
+    postWithAll: post<
+      { foo: string },
+      { ok: boolean },
+      { id: number },
+      { q: string }
+    >('/bar/:id'),
     form: post<FormData, { success: boolean }>('/form'),
-    uploadFile: post<void, {success: boolean}, { id: string }>('/form/:id/file', { auth: true }),
+    uploadFile: post<void, { success: boolean }, { id: string }>(
+      '/form/:id/file',
+      { auth: true },
+    ),
   }
 
   const baseUrl = 'https://api.test'
@@ -244,7 +256,7 @@ describe('client', () => {
     const api = client({ baseUrl, endpoints })
     await api.bar({ x: 'hi' }, { searchParams: 'not-an-object' } as any)
     await api.bar({ x: 'hi' }, { searchParams: [1, 2, 3] } as any)
-    await api.bar({ x: 'test' }, { headers: { 'Custom': 'header' } }) // no searchParams = undefined
+    await api.bar({ x: 'test' }, { headers: { Custom: 'header' } }) // no searchParams = undefined
   })
 
   it('should access a non-function property on the deferred ResponsePromise', async () => {
@@ -293,7 +305,7 @@ describe('client', () => {
     formData.append('description', 'Test file upload')
     formData.append('id', '123')
     const folderId = '123'
-    
+
     await api.uploadFile({ params: { id: folderId } }, { body: formData })
     expect(ky).toHaveBeenCalledWith(
       `https://api.test/form/${folderId}/file`,

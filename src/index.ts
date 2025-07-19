@@ -290,12 +290,10 @@ export function client<E extends EndpointGroup>({
               if ('params' in input) params = input.params
               if ('body' in input) body = input.body
               if ('query' in input) query = input.query
-              if (!body) {
-                // it might be in the kyOptions and will be merged later; we check if body or json
-                // is set in kyOptions and otherwise, set the body to input
-                if (!kyOptions?.body && !kyOptions?.json) {
-                  body = input
-                }                
+              // it might be in the kyOptions and will be merged later; we check if body or json
+              // is set in kyOptions and otherwise, set the body to input
+              if (!body && !kyOptions?.body && !kyOptions?.json) {
+                body = input
               }
             } else if (input !== undefined) {
               body = input
