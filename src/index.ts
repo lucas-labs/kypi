@@ -290,7 +290,13 @@ export function client<E extends EndpointGroup>({
               if ('params' in input) params = input.params
               if ('body' in input) body = input.body
               if ('query' in input) query = input.query
-              if (!body) body = input
+              if (!body) {
+                // it might be in the kyOptions and will be merged later; we check if body or json
+                // is set in kyOptions and otherwise, set the body to input
+                if (!kyOptions?.body && !kyOptions?.json) {
+                  body = input
+                }                
+              }
             } else if (input !== undefined) {
               body = input
             }
@@ -329,7 +335,11 @@ export function client<E extends EndpointGroup>({
                 kyopts.searchParams = input
               }
             } else if (body !== undefined) {
-              kyopts.json = body
+              if (body instanceof FormData) {
+                kyopts.body = body
+              } else {
+                kyopts.json = body
+              }
             }
 
             // merge user-provided KyOptions (user overrides)

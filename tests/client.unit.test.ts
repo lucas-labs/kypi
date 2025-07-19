@@ -36,21 +36,14 @@ describe('client', () => {
       '/foo/:id',
     ),
     deleteById: del<undefined, {}, { id: number }>('/foo/:id'),
-    updateById: put<
-      { name: string },
-      { id: number; name: string },
-      { id: number }
-    >('/foo/:id'),
-    getWithQuery: get<{ q: string }, { result: string }, { id: number }>(
+    updateById: put<{ name: string }, { id: number; name: string }, { id: number }>('/foo/:id'),
+    getWithQuery: get<void, { result: string }, { id: number }, { q: string }>(
       '/foo/:id/search',
     ),
     postPrimitive: post<string, { ok: boolean }>('/primitive'),
-    postWithAll: post<
-      { foo: string },
-      { ok: boolean },
-      { id: number },
-      { q: string }
-    >('/bar/:id'),
+    postWithAll: post<{ foo: string },{ ok: boolean },{ id: number },{ q: string }>('/bar/:id'),
+    form: post<FormData, { success: boolean }>('/form'),
+    uploadFile: post<void, {success: boolean}, { id: string }>('/form/:id/file', { auth: true }),
   }
 
   const baseUrl = 'https://api.test'
@@ -60,7 +53,7 @@ describe('client', () => {
   })
 
   it('calls GET with query params', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.foo({ id: 1 })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/foo',
@@ -72,7 +65,7 @@ describe('client', () => {
   })
 
   it('calls POST with JSON body', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.bar({ x: 'hi' })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/bar',
@@ -84,7 +77,7 @@ describe('client', () => {
   })
 
   it('adds Authorization header for authed endpoint', async () => {
-    const api = client({ baseUrl, endpoints, getToken: () => 'tok' }) as any
+    const api = client({ baseUrl, endpoints, getToken: () => 'tok' })
     await api.authed()
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/secret',
@@ -96,7 +89,7 @@ describe('client', () => {
   })
 
   it('supports nested endpoint groups', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.nested.baz({ y: 2 })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/baz',
@@ -108,7 +101,7 @@ describe('client', () => {
   })
 
   it('interpolates path params for GET', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.getById({ params: { id: 42 } })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/foo/42',
@@ -117,7 +110,7 @@ describe('client', () => {
   })
 
   it('interpolates path params for DELETE', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.deleteById({ params: { id: 99 } })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/foo/99',
@@ -126,7 +119,7 @@ describe('client', () => {
   })
 
   it('interpolates path params and sends body for PUT', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.updateById({ params: { id: 7 }, body: { name: 'Zed' } })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/foo/7',
@@ -138,7 +131,7 @@ describe('client', () => {
   })
 
   it('interpolates path params and sends query for GET', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.getWithQuery({ params: { id: 5 }, query: { q: 'test' } })
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/foo/5/search',
@@ -155,7 +148,7 @@ describe('client', () => {
       endpoints,
       // eslint-disable-next-line require-await
       getToken: async () => 'async-token',
-    }) as any
+    })
     await api.authed()
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/secret',
@@ -169,7 +162,7 @@ describe('client', () => {
   })
 
   it('does not add Authorization header if getToken returns null', async () => {
-    const api = client({ baseUrl, endpoints, getToken: () => null }) as any
+    const api = client({ baseUrl, endpoints, getToken: () => null })
     await api.authed()
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/secret',
@@ -201,7 +194,7 @@ describe('client', () => {
   })
 
   it('calls POST with primitive input as body', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.postPrimitive('hello')
     expect(ky).toHaveBeenCalledWith(
       'https://api.test/primitive',
@@ -218,8 +211,8 @@ describe('client', () => {
         '/foo/:id',
       ),
     }
-    const api = client({ baseUrl, endpoints }) as any
-    await expect(api.getById({ params: {} })).rejects.toThrow(
+    const api = client({ baseUrl, endpoints })
+    await expect(api.getById({ params: {} as any })).rejects.toThrow(
       'Missing param: id',
     )
   })
@@ -230,12 +223,12 @@ describe('client', () => {
         '/foo/:id',
       ),
     }
-    const api = client({ baseUrl: 'http://example:8080/api', endpoints }) as any
+    const api = client({ baseUrl: 'http://example:8080/api', endpoints })
     await api.getById({ params: { id: 2 } })
   })
 
   it('merges per-request KyOptions (headers, searchParams, etc)', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.foo(
       { id: 1 },
       { headers: { 'X-Test': 'abc' }, searchParams: { extra: 'y' } },
@@ -243,14 +236,15 @@ describe('client', () => {
   })
 
   it('per-request KyOptions overrides default headers', async () => {
-    const api = client({ baseUrl, endpoints, getToken: () => 'tok' }) as any
-    await api.authed(undefined, { headers: { Authorization: 'Custom' } })
+    const api = client({ baseUrl, endpoints, getToken: () => 'tok' })
+    await api.authed({ headers: { Authorization: 'Custom' } })
   })
 
   it('handles non-object searchParams in per-request KyOptions (coverage)', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.bar({ x: 'hi' }, { searchParams: 'not-an-object' } as any)
     await api.bar({ x: 'hi' }, { searchParams: [1, 2, 3] } as any)
+    await api.bar({ x: 'test' }, { headers: { 'Custom': 'header' } }) // no searchParams = undefined
   })
 
   it('should access a non-function property on the deferred ResponsePromise', async () => {
@@ -262,7 +256,7 @@ describe('client', () => {
   })
 
   it('sends body, path params, and query params for POST with all generics', async () => {
-    const api = client({ baseUrl, endpoints }) as any
+    const api = client({ baseUrl, endpoints })
     await api.postWithAll({
       params: { id: 1 },
       query: { q: 'abc' },
@@ -274,6 +268,45 @@ describe('client', () => {
         method: 'post',
         searchParams: { q: 'abc' },
         json: { foo: 'bar' },
+      }),
+    )
+  })
+
+  it('calls POST with FormData body', async () => {
+    const api = client({ baseUrl, endpoints })
+    const formData = new FormData()
+    formData.append('key', 'value')
+    await api.form(formData)
+    expect(ky).toHaveBeenCalledWith(
+      'https://api.test/form',
+      expect.objectContaining({
+        method: 'post',
+        body: formData,
+      }),
+    )
+  })
+
+  it('should accept body set in kyOptions', async () => {
+    const api = client({ baseUrl, endpoints })
+    const formData = new FormData()
+    formData.append('file', new Blob(['test content'], { type: 'text/plain' }))
+    formData.append('description', 'Test file upload')
+    formData.append('id', '123')
+    const folderId = '123'
+    
+    await api.uploadFile({ params: { id: folderId } }, { body: formData })
+    expect(ky).toHaveBeenCalledWith(
+      `https://api.test/form/${folderId}/file`,
+      expect.objectContaining({
+        method: 'post',
+        body: formData,
+      }),
+    )
+    // make sure it didn't send a JSON body
+    expect(ky).toHaveBeenCalledWith(
+      `https://api.test/form/${folderId}/file`,
+      expect.not.objectContaining({
+        json: expect.anything(),
       }),
     )
   })
