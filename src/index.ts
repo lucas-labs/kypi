@@ -20,24 +20,25 @@ import ky, {
 } from 'ky'
 
 // re-export ky types for convenience
-export { HTTPError, TimeoutError }
-export type {
-  AfterResponseHook,
-  BeforeErrorHook,
-  BeforeRequestHook,
-  BeforeRetryHook,
-  BeforeRetryState,
-  Hooks,
-  Input,
-  KyInstance,
-  KyRequest,
-  KyResponse,
-  NormalizedOptions,
-  Options,
-  Progress,
-  ResponsePromise,
-  RetryOptions,
-  SearchParamsOption,
+export {
+  HTTPError,
+  TimeoutError,
+  type AfterResponseHook,
+  type BeforeErrorHook,
+  type BeforeRequestHook,
+  type BeforeRetryHook,
+  type BeforeRetryState,
+  type Hooks,
+  type Input,
+  type KyInstance,
+  type KyRequest,
+  type KyResponse,
+  type NormalizedOptions,
+  type Options,
+  type Progress,
+  type ResponsePromise,
+  type RetryOptions,
+  type SearchParamsOption,
 }
 
 export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete'
