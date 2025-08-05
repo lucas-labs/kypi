@@ -83,6 +83,7 @@
     "ky": "^1.8.2"
   },
   "devDependencies": {
+    "@codecov/rollup-plugin": "^1.9.1",
     "@sxzz/eslint-config": "^7.1.1",
     "@sxzz/prettier-config": "^2.2.3",
     "@testing-library/jest-dom": "^6.6.4",
