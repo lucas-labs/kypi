@@ -1,10 +1,45 @@
 import ky, {
   HTTPError,
-  type Options as KyOptions,
+  TimeoutError,
+  type AfterResponseHook,
+  type BeforeErrorHook,
+  type BeforeRequestHook,
+  type BeforeRetryHook,
+  type BeforeRetryState,
+  type Hooks,
+  type Input,
+  type KyInstance,
+  type KyRequest,
+  type KyResponse,
+  type NormalizedOptions,
+  type Options,
+  type Progress,
   type ResponsePromise,
+  type RetryOptions,
+  type SearchParamsOption,
 } from 'ky'
 
-export { HTTPError }
+// re-export ky types for convenience
+export { HTTPError, TimeoutError }
+export type {
+  AfterResponseHook,
+  BeforeErrorHook,
+  BeforeRequestHook,
+  BeforeRetryHook,
+  BeforeRetryState,
+  Hooks,
+  Input,
+  KyInstance,
+  KyRequest,
+  KyResponse,
+  NormalizedOptions,
+  Options,
+  Progress,
+  ResponsePromise,
+  RetryOptions,
+  SearchParamsOption,
+}
+
 export type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'head' | 'delete'
 
 // eslint-disable-next-line unused-imports/no-unused-vars
@@ -42,10 +77,10 @@ type InputFor<In, Params, Query> = Params extends undefined
 
 type CallSig<In, Out, Params, Query> =
   InputFor<In, Params, Query> extends undefined
-    ? (kyOptions?: KyOptions) => ResponsePromise<Out>
+    ? (kyOptions?: Options) => ResponsePromise<Out>
     : (
         input: InputFor<In, Params, Query>,
-        kyOptions?: KyOptions,
+        kyOptions?: Options,
       ) => ResponsePromise<Out>
 
 export type ClientOf<G extends EndpointGroup> = {
@@ -61,6 +96,7 @@ export interface ApiClientOptions<E extends EndpointGroup> {
   getToken?: () => string | null | Promise<string | null>
   endpoints: E
   onError?: (error: HTTPError) => void
+  kyInstance?: KyInstance
 }
 
 type EpOpts = Omit<Endpoint, 'method' | 'url' | '__params'>
@@ -263,12 +299,14 @@ function createDeferredKyCall(
  * @param options.getToken - Optional function to retrieve an authentication token
  * @param options.endpoints - The endpoint group definition
  * @param options.onError - Optional onError hook, will be called if the request throws an error
+ * @param options.kyInstance - Optional custom Ky instance to use, defaults to the default instance
  */
 export function client<E extends EndpointGroup>({
   baseUrl,
   getToken,
   onError,
   endpoints,
+  kyInstance = ky,
 }: ApiClientOptions<E>): ClientOf<E> {
   const build = (group: EndpointGroup): any => {
     const client: Record<string, unknown> = {}
@@ -279,7 +317,7 @@ export function client<E extends EndpointGroup>({
 
         client[key] = (
           input?: any,
-          kyOptions?: KyOptions,
+          kyOptions?: Options,
         ): ResponsePromise<any> => {
           const makeKyCall = async (): Promise<ResponsePromise<any>> => {
             let params: any = undefined
@@ -300,7 +338,7 @@ export function client<E extends EndpointGroup>({
             }
 
             const url = baseUrl + interpolateUrl(endpoint.url, params)
-            let kyopts: KyOptions = { method: endpoint.method, headers: {} }
+            let kyopts: Options = { method: endpoint.method, headers: {} }
 
             // auth header
             if (endpoint.auth) {
@@ -366,7 +404,7 @@ export function client<E extends EndpointGroup>({
               }
             }
 
-            return ky(url, kyopts).catch((error) => {
+            return kyInstance(url, kyopts).catch((error) => {
               onError?.(error as HTTPError)
               throw error
             })
