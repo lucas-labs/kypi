@@ -16,6 +16,7 @@ export default defineConfig({
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
       uploadToken: process.env.CODECOV_TOKEN,
       bundleName: 'kypi',
+      gitService: 'github',
     }),
   ],
 })
