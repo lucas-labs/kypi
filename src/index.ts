@@ -22,6 +22,7 @@ import ky, {
 // re-export ky types for convenience
 export {
   HTTPError,
+  ky,
   TimeoutError,
   type AfterResponseHook,
   type BeforeErrorHook,
