@@ -1,4 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "svg.preview.background": "editor"
+  "svg.preview.background": "editor",
+  "bun.test.enable": false
 }

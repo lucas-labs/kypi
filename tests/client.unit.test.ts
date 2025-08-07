@@ -121,6 +121,66 @@ describe('client', () => {
     )
   })
 
+  it('uses the provided kyInstance for requests', async () => {
+    // Create a mock KyInstance with required methods
+    const customKyFn = vi.fn((url, opts) => {
+      // Create a native Response object
+      const nativeResponse = new Response(JSON.stringify({ custom: true }), {
+        status: 200,
+        statusText: 'OK',
+        headers: opts && opts.headers ? opts.headers : {},
+      })
+      // Add Ky methods to the Response
+      const kyResponse = Object.assign(nativeResponse, {
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+        blob: () => Promise.resolve(new Blob()),
+        formData: () => Promise.resolve(new FormData()),
+        json: <J = unknown>() => Promise.resolve({ custom: true } as J),
+        text: () => Promise.resolve('custom'),
+        url,
+        opts,
+        headers: opts && opts.headers ? opts.headers : {},
+        method: opts && opts.method,
+        jsonBody: opts && opts.json,
+        searchParams: opts && opts.searchParams,
+      })
+      const promise = Promise.resolve(kyResponse)
+      return Object.assign(promise, kyResponse)
+    })
+    // KyInstance must have get, post, put, delete, patch, head, options, etc.
+    const customKy = Object.assign(customKyFn, {
+      get: customKyFn,
+      post: customKyFn,
+      put: customKyFn,
+      delete: customKyFn,
+      patch: customKyFn,
+      head: customKyFn,
+      options: customKyFn,
+      extend: () => customKy,
+      create: () => customKy,
+      stop: Symbol('ky.stop'),
+    })
+    const api = client({ baseUrl, endpoints, kyInstance: customKy as any })
+    await api.foo({ id: 123 })
+    expect(customKyFn).toHaveBeenCalledWith(
+      'https://api.test/foo',
+      expect.objectContaining({ method: 'get', searchParams: { id: 123 } }),
+    )
+    // Ensure default ky is NOT called
+    expect(ky).not.toHaveBeenCalled()
+  })
+
+  it('calls the global ky when kyInstance is not provided', async () => {
+    const customKyFn = vi.fn()
+    const api = client({ baseUrl, endpoints })
+    await api.foo({ id: 456 })
+    expect(ky).toHaveBeenCalledWith(
+      'https://api.test/foo',
+      expect.objectContaining({ method: 'get', searchParams: { id: 456 } }),
+    )
+    expect(customKyFn).not.toHaveBeenCalled()
+  })
+
   it('interpolates path params for DELETE', async () => {
     const api = client({ baseUrl, endpoints })
     await api.deleteById({ params: { id: 99 } })
