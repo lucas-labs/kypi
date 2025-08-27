@@ -1,6 +1,6 @@
 {
   "name": "kypi",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Type-safe, ergonomic API client builder for TypeScript & React based on ky.",
   "type": "module",
   "keywords": [
