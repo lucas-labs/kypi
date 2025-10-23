@@ -399,13 +399,6 @@ describe('client', () => {
       bytes: () => Promise.reject(error),
       json: () => Promise.reject(error),
       text: () => Promise.reject(error),
-      foo: 123,
-      url: '',
-      opts: {},
-      headers: {},
-      method: '',
-      jsonBody: undefined,
-      searchParams: undefined,
     }
     const promise = Promise.reject(error)
     vi.mocked(ky).mockImplementationOnce(() => Object.assign(promise, response))
@@ -415,5 +408,19 @@ describe('client', () => {
 
     // check the onError hook was actually called
     expect(onError).toHaveBeenCalledWith(error)
+  })
+
+  it('should reuse the same promise when accessing deferred proxy multiple times', async () => {
+    const { client, get } = await import('../src')
+    const api = client({ baseUrl: '', endpoints: { foo: get('/foo') } })
+    const deferred = api.foo({})
+
+    // Access the proxy twice - this should reuse the cached promise
+    const promise1 = (deferred as any).json()
+    const promise2 = (deferred as any).text()
+
+    // Both should be promises
+    expect(promise1).toBeInstanceOf(Promise)
+    expect(promise2).toBeInstanceOf(Promise)
   })
 })

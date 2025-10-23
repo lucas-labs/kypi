@@ -17,6 +17,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'clover', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'playground/**',
         'tsdown.config.ts',
@@ -25,8 +26,6 @@ export default defineConfig({
         'eslint.config.js',
         'vitest.config.ts',
         '*.d.ts',
-        '*.js',
-        '!src/**',
         'bump.config.ts',
       ],
     },
