@@ -5,7 +5,7 @@ export default defineConfig({
   // @ts-expect-error: Vite type mismatch due to multiple Vite versions when using bun + tsdown's vite
   plugins: [react()],
   test: {
-    environment: 'happy-dom',
+    environment: 'jsdom',
     globals: true,
     setupFiles: './tests/setup.ts',
     coverage: {

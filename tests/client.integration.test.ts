@@ -63,8 +63,24 @@ describe('kypi client', () => {
     const api = client({ baseUrl: 'https://example.com', endpoints, getToken })
     await api.products().json()
     const fetchCall = (globalThis.fetch as any).mock.calls[0]
-    const req = fetchCall[0] // This is the Request object
-    const authHeader = req.headers.get('Authorization')
+
+    // Check both the Request object and the options
+    const req = fetchCall[0] // Request object or URL
+    const opts = fetchCall[1] // Options object
+
+    // Try to get header from either location
+    let authHeader = null
+    if (req && typeof req === 'object' && 'headers' in req) {
+      authHeader = req.headers.get('Authorization')
+    }
+    if (!authHeader && opts && opts.headers) {
+      if (opts.headers instanceof Headers) {
+        authHeader = opts.headers.get('Authorization')
+      } else if (typeof opts.headers === 'object') {
+        authHeader = opts.headers.Authorization || opts.headers.authorization
+      }
+    }
+
     expect(authHeader).toBe('Bearer mytoken')
   })
 
@@ -75,11 +91,29 @@ describe('kypi client', () => {
         createJsonResponse([{ id: 1, title: 'Test' }], { status: 200 }),
       )
     const getToken = vi.fn(() => 'mytoken')
+    const result = getToken()
+    expect(result).toBe('mytoken')
     const api = client({ baseUrl: 'https://example.com', endpoints, getToken })
     await api.products().json()
     const fetchCall = (globalThis.fetch as any).mock.calls[0]
-    const req = fetchCall[0] // This is the Request object
-    const authHeader = req.headers.get('Authorization')
+
+    // Check both the Request object and the options
+    const req = fetchCall[0] // Request object or URL
+    const opts = fetchCall[1] // Options object
+
+    // Try to get header from either location
+    let authHeader = null
+    if (req && typeof req === 'object' && 'headers' in req) {
+      authHeader = req.headers.get('Authorization')
+    }
+    if (!authHeader && opts && opts.headers) {
+      if (opts.headers instanceof Headers) {
+        authHeader = opts.headers.get('Authorization')
+      } else if (typeof opts.headers === 'object') {
+        authHeader = opts.headers.Authorization || opts.headers.authorization
+      }
+    }
+
     expect(authHeader).toBe('Bearer mytoken')
   })
 
