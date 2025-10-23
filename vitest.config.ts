@@ -5,12 +5,19 @@ export default defineConfig({
   // @ts-expect-error: Vite type mismatch due to multiple Vite versions when using bun + tsdown's vite
   plugins: [react()],
   test: {
+    pool: 'vmThreads',
     environment: 'happy-dom',
     globals: true,
     setupFiles: './tests/setup.ts',
+    server: {
+      deps: {
+        inline: [/^(?!.*node_modules)/],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'clover', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'playground/**',
         'tsdown.config.ts',
@@ -19,8 +26,6 @@ export default defineConfig({
         'eslint.config.js',
         'vitest.config.ts',
         '*.d.ts',
-        '*.js',
-        '!src/**',
         'bump.config.ts',
       ],
     },

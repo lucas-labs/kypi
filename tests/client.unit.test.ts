@@ -130,20 +130,27 @@ describe('client', () => {
         statusText: 'OK',
         headers: opts && opts.headers ? opts.headers : {},
       })
-      // Add Ky methods to the Response
-      const kyResponse = Object.assign(nativeResponse, {
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-        blob: () => Promise.resolve(new Blob()),
-        formData: () => Promise.resolve(new FormData()),
-        json: <J = unknown>() => Promise.resolve({ custom: true } as J),
-        text: () => Promise.resolve('custom'),
-        url,
-        opts,
-        headers: opts && opts.headers ? opts.headers : {},
-        method: opts && opts.method,
-        jsonBody: opts && opts.json,
-        searchParams: opts && opts.searchParams,
+
+      // Create a Proxy to add Ky methods without mutating the Response
+      const kyResponse = new Proxy(nativeResponse, {
+        get(target, prop) {
+          // Ky response methods
+          if (prop === 'json')
+            return <J = unknown>() => Promise.resolve({ custom: true } as J)
+          if (prop === 'text') return () => Promise.resolve('custom')
+          if (prop === 'arrayBuffer')
+            return () => Promise.resolve(new ArrayBuffer(0))
+          if (prop === 'blob') return () => Promise.resolve(new Blob())
+          if (prop === 'formData') return () => Promise.resolve(new FormData())
+          // Custom properties for test assertions
+          if (prop === 'opts') return opts
+          if (prop === 'jsonBody') return opts && opts.json
+          if (prop === 'searchParams') return opts && opts.searchParams
+          // Default to the Response's properties
+          return (target as any)[prop]
+        },
       })
+
       const promise = Promise.resolve(kyResponse)
       return Object.assign(promise, kyResponse)
     })
@@ -389,15 +396,9 @@ describe('client', () => {
       arrayBuffer: () => Promise.reject(error),
       blob: () => Promise.reject(error),
       formData: () => Promise.reject(error),
+      bytes: () => Promise.reject(error),
       json: () => Promise.reject(error),
       text: () => Promise.reject(error),
-      foo: 123,
-      url: '',
-      opts: {},
-      headers: {},
-      method: '',
-      jsonBody: undefined,
-      searchParams: undefined,
     }
     const promise = Promise.reject(error)
     vi.mocked(ky).mockImplementationOnce(() => Object.assign(promise, response))
@@ -407,5 +408,19 @@ describe('client', () => {
 
     // check the onError hook was actually called
     expect(onError).toHaveBeenCalledWith(error)
+  })
+
+  it('should reuse the same promise when accessing deferred proxy multiple times', async () => {
+    const { client, get } = await import('../src')
+    const api = client({ baseUrl: '', endpoints: { foo: get('/foo') } })
+    const deferred = api.foo({})
+
+    // Access the proxy twice - this should reuse the cached promise
+    const promise1 = (deferred as any).json()
+    const promise2 = (deferred as any).text()
+
+    // Both should be promises
+    expect(promise1).toBeInstanceOf(Promise)
+    expect(promise2).toBeInstanceOf(Promise)
   })
 })
