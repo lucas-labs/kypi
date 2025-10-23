@@ -4,7 +4,7 @@ import { client, del, get, post } from '../src'
 // Helper to create a Response object for fetch mocks
 function createJsonResponse(body: any, init?: ResponseInit) {
   return new Response(JSON.stringify(body), {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
   })
 }
