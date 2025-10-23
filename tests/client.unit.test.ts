@@ -396,6 +396,7 @@ describe('client', () => {
       arrayBuffer: () => Promise.reject(error),
       blob: () => Promise.reject(error),
       formData: () => Promise.reject(error),
+      bytes: () => Promise.reject(error),
       json: () => Promise.reject(error),
       text: () => Promise.reject(error),
       foo: 123,
