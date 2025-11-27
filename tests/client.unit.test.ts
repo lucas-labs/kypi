@@ -125,11 +125,14 @@ describe('client', () => {
     // Create a mock KyInstance with required methods
     const customKyFn = vi.fn((url, opts) => {
       // Create a native Response object
-      const nativeResponse = new Response(JSON.stringify({ custom: true }), {
-        status: 200,
-        statusText: 'OK',
-        headers: opts && opts.headers ? opts.headers : {},
-      })
+      const nativeResponse = Response.json(
+        { custom: true },
+        {
+          status: 200,
+          statusText: 'OK',
+          headers: opts && opts.headers ? opts.headers : {},
+        },
+      )
 
       // Create a Proxy to add Ky methods without mutating the Response
       const kyResponse = new Proxy(nativeResponse, {
