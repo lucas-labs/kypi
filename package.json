@@ -80,7 +80,7 @@
     }
   },
   "dependencies": {
-    "ky": "^1.14.0"
+    "ky": "^2.0.0"
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^1.9.1",
