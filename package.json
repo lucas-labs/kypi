@@ -101,7 +101,7 @@
     "react-dom": "^19.2.0",
     "tsdown": "^0.16.7",
     "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.0",
     "vite": "npm:rolldown-vite@latest",
     "vitest": "^4.0.14"
   },
