@@ -91,7 +91,7 @@
     "@types/node": "^25.0.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react": "^6.0.0",
     "@vitest/coverage-v8": "^4.0.14",
     "bumpp": "^11.0.0",
     "eslint": "^9.39.1",
