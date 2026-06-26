@@ -84,7 +84,7 @@
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^2.0.0",
-    "@sxzz/eslint-config": "^7.3.2",
+    "@sxzz/eslint-config": "^8.0.0",
     "@sxzz/prettier-config": "^2.2.5",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
