@@ -1,7 +1,7 @@
 {
   "name": "kypi",
   "type": "module",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Type-safe, ergonomic API client builder for TypeScript & React based on ky.",
   "author": "Lucas Colombo <lucas@lucode.dev>",
   "license": "MIT",
