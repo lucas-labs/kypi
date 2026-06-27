@@ -1,8 +1,18 @@
 {
   "name": "kypi",
+  "type": "module",
   "version": "0.4.5",
   "description": "Type-safe, ergonomic API client builder for TypeScript & React based on ky.",
-  "type": "module",
+  "author": "Lucas Colombo <lucas@lucode.dev>",
+  "license": "MIT",
+  "homepage": "https://github.com/lucas-labs/kypi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucas-labs/kypi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lucas-labs/kypi/issues"
+  },
   "keywords": [
     "fetch",
     "api-client",
@@ -27,23 +37,6 @@
     "axios",
     "node-fetch"
   ],
-  "license": "MIT",
-  "homepage": "https://github.com/lucas-labs/kypi#readme",
-  "bugs": {
-    "url": "https://github.com/lucas-labs/kypi/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lucas-labs/kypi.git"
-  },
-  "author": "Lucas Colombo <lucas@lucode.dev>",
-  "files": [
-    "dist",
-    "readme.md"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./react": {
@@ -52,6 +45,13 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "readme.md"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -83,27 +83,27 @@
     "ky": "^2.0.0"
   },
   "devDependencies": {
-    "@codecov/rollup-plugin": "^2.0.0",
-    "@sxzz/eslint-config": "^7.3.2",
-    "@sxzz/prettier-config": "^2.2.5",
+    "@codecov/rollup-plugin": "^2.0.1",
+    "@sxzz/eslint-config": "^8.2.1",
+    "@sxzz/prettier-config": "^2.3.1",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@types/node": "^26.0.0",
-    "@types/react": "^19.2.7",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^26.0.1",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.0",
-    "@vitest/coverage-v8": "^4.0.14",
-    "bumpp": "^11.0.0",
-    "eslint": "^9.39.1",
-    "happy-dom": "^20.0.10",
-    "prettier": "^3.6.2",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "tsdown": "^0.22.0",
-    "tsx": "^4.20.6",
-    "typescript": "^6.0.0",
-    "vite": "npm:rolldown-vite@latest",
-    "vitest": "^4.0.14"
+    "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.9",
+    "bumpp": "^11.1.0",
+    "eslint": "^10.6.0",
+    "happy-dom": "^20.10.6",
+    "prettier": "^3.9.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tsdown": "^0.22.3",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.0",
+    "vitest": "^4.1.9"
   },
   "prettier": "@sxzz/prettier-config"
 }
